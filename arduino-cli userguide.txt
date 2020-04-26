@@ -1,0 +1,42 @@
+./arduino-cli config init
+./arduino-cli core update
+./arduino-cli core update-index
+./arduino-cli core list
+./arduino-cli board
+./arduino-cli board listall
+./arduino-cli board listall avr
+./arduino-cli lib search rc-switch
+./arduino-cli lib install rc-switch
+
+For Arduino Uno
+****************
+./arduino-cli sketch new MyFirstSketch
+./arduino-cli compile --fqbn arduino:avr:uno MyFirstSketch
+./arduino-cli board list
+./arduino-cli upload -p /dev/ttyUSB0 --fqbn arduino:avr:uno MyFirstSketch
+
+
+For Esp8266 NodeMCU 1.0 (ESP-12E Module)
+****************************************
+./arduino-cli core search --additional-urls https://arduino.esp8266.com/stable/package_esp8266com_index.json
+./arduino-cli core update-index --additional-urls https://arduino.esp8266.com/stable/package_esp8266com_index.json
+./arduino-cli core install --additional-urls https://arduino.esp8266.com/stable/package_esp8266com_index.json
+./arduino-cli core list
+./arduino-cli board list
+./arduino-cli sketch new MyFirstSketch
+./arduino-cli compile --fqbn esp8266:esp8266:nodemcuv2 MyFirstSketch
+./arduino-cli board list
+./arduino-cli upload -p /dev/ttyUSB0 --fqbn esp8266:esp8266:nodemcuv2 MyFirstSketch
+
+For Esp32 DOIT ESP32 DEVKIT V1
+******************************
+./arduino-cli core search --additional-urls https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
+./arduino-cli core install esp32:esp32 --additional-urls https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
+./arduino-cli core update-index --additional-urls https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
+./arduino-cli core list
+./arduino-cli board list
+./arduino-cli sketch new MyFirstSketch
+./arduino-cli compile --fqbn esp32:esp32:esp32doit-devkit-v1 MyFirstSketch
+./arduino-cli board list
+./arduino-cli upload -p /dev/ttyUSB0 --fqbn esp32:esp32:esp32doit-devkit-v1 MyFirstSketch
+

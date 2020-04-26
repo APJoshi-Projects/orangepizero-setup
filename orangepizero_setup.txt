@@ -1,0 +1,329 @@
+#OrangePiZero_OS_DietPi_Jessie_V145_Setup
+
+Features Index
+1 debian jessie
+2 build essentials
+3 git
+4 LLSP web stack
+5 display minimal x11 with jwm and rox-filer
+6 lirc
+7 spi gpio pwm wiringpi
+8 remot3it connectd
+9 geany
+10 speaker and mic
+11 arduino-cli
+
+
+#1. Write os image to sd card.
+
+#2. Before inserting sd card in orangepizero do Edit /etc/apt/sources.list and /etc/apt/sources.list.d/armbian.list
+	deb http://deb.debian.org/debian/ jessie main contrib non-free
+	deb http://security.debian.org jessie/updates main contrib non-free
+	
+	armbian.list
+	#
+	
+#3. Insert sd card in orangepizero and let DietPi finish the setup.
+
+#4. login with username=root password=dietpi . Let dietpi finish the initial setup.
+                        dietpi        1234
+#5. change default password
+	passwd
+
+#6. Update
+	apt-get update
+
+#7. Upgrade
+	apt-get upgrade
+
+#8. change Language, Local, Timezone, hostname, audio, apt-mirrors, wifi.
+	dietpi-config
+ 
+#9. install build-essentials, git, llsp stack
+	dietpi-software
+
+#10. fix display settings
+	bin2fex /boot/script.bin ~/script.fex 
+	nano ~/script.fex    //fb0_width = 680 & fb0_height = 536
+	fex2bin ~/script.fex ~/script.bin
+	sudo cp ~/script.bin /boot
+	reboot
+	wget http://free-electrons.com/pub/mirror/devmem2.c
+	gcc ./devmem2.c
+	gcc ./devmem2.c
+	mv ./a.out /usr/local/bin/devmem2
+	devmem2 0x01E00130 w 0x00140028
+OR	devmem2 0x01E00130 w 0x300F03CC /https://forum.armbian.com/topic/3837-psa-orange-pi-zero-expansion-board-tv-out-not-working-solution/?tab=comments#comment-32699
+	reboot
+	sudo nano /etc/rc.local
+	reboot
+
+#11. apt update
+	apt-get install --no-install-recommends xserver-xorg
+	apt-get install --no-install-recommends xinit
+	apt-get install jwm rox-filer menu xterm
+	apt-get install lightdm
+	reboot
+	groupadd -r autologin
+	gpasswd -a root autologin
+
+	root@apjoshi:~# lightdm --show-config
+	   [SeatDefaults]
+	A  greeter-session=lightdm-greeter
+	A  greeter-hide-users=true
+	A  session-wrapper=/etc/X11/Xsession
+	A  autologin-user=root
+
+	Sources:
+	A  /usr/share/lightdm/lightdm.conf.d/01_debian.conf
+	B  /etc/lightdm/lightdm.conf
+
+#12. apt-get install fdclone
+	apt-get install leafpad
+	apt-get install mupdf
+	apt-get install poppler-utils  /pdf in terminal-pdftotext
+	apt-get install mpg123 mplayer
+	apt-get install wvdial 
+	apt-get install geany
+	apt-get install viewnior
+	apt-get install p7zip-full xarchiver
+	apt-get install synergy
+	apt-get install dillo links2
+	apt-get install uzbl
+	
+nano /usr/share/applications/mplayer.desktop
+[Desktop Entry]
+Type=Application
+Name=MPlayer
+GenericName=Media Player
+X-GNOME-FullName=MPlayer Media Player
+Comment=Play movies and songs
+Keywords=Player;Capture;Audio;Music;Song;Video;Movie;Film;Clip;DVD;VCD;CD;Disc;DVB;TV;
+Icon=usr/share/icons/hicolor/256x256/apps/mplayer.jpg
+TryExec=mplayer
+Exec=mplayer %F
+Terminal=false
+Categories=GTK;AudioVideo;Audio;Video;Player;TV;
+MimeType=application/mxf;application/x-netshow-channel;application/ogg;application/ram;application/vnd.adobe.flash.movie;application/vnd.rn-realmedia;application/x-shockwave-flash;application/smil;audio/aac;audio/ac3;audio/x-adpcm;audio/x-aiff;audio/AMR;audio/AMR-WB;audio/x-ape;audio/basic;audio/flac;audio/x-flac;audio/x-flac+ogg;audio/x-m4b;audio/x-matroska;audio/mp2;audio/mp4;audio/mpeg;audio/x-mpegurl;audio/x-ms-asx;audio/x-ms-wma;audio/x-musepack;audio/ogg;audio/vnd.rn-realaudio;audio/x-scpls;audio/x-voc;audio/x-vorbis+ogg;audio/x-wav;audio/x-wavpack;video/3gpp;video/3gpp2;video/dv;video/x-flic;video/x-flv;video/x-matroska;video/mp2t;video/mp4;video/mpeg;video/vnd.mpegurl;video/x-ms-asf;video/x-ms-wmv;video/x-msvideo;video/x-nsv;video/ogg;video/x-ogm+ogg;video/quicktime;video/vnd.rn-realvideo;video/x-theora+ogg;video/webm;x-content/audio-cdda;x-content/audio-dvd;x-content/video-dvd;x-content/video-svcd;x-content/video-vcd;
+	
+#13. edit ~/.config/leafpad/leafpadrc geometry=652,482
+	leafpad /etc/jwm/system.jwmrc
+	uzbl http://localhost:80 &
+	nano ~/.config/leafpad/leafpadrc geometry=652x482	
+	edit /etc/dillo/dillorc geometry=653x473
+	edit /etc/fdclone/fd2rc
+
+#14. wget -O speedtest-cli https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py
+	chmod +x speedtest-cli
+	./speedtest-cli
+	
+#15. Enable WiringPi/SPI
+	refer www.mysensors.com/build/orange
+	just install git clone htpps://github.com/sunzone93/WiringOP-Zero.git	
+	cd WiringOP-Zero
+	chmod +x ./build
+	./build
+	
+	SPI is tested on Armbian with legacy kernel:
+    The SPI channel 0 is used for SPI Flash and channel 1 is available
+    for use in GPIO pins...
+    > bin2fex /boot/script.bin script.fex
+    > nano script.fex
+      Add following lines:
+          [spi1_para]
+          spi_used = 1
+          spi_cs_bitmap = 1
+          spi_cs0 = port:PA13<2><1><default><default>
+          spi_sclk = port:PA14<2><default><default><default>
+          spi_mosi = port:PA15<2><default><default><default>
+          spi_miso = port:PA16<2><default><default><default>
+          
+          [spi_devices]
+          spi_dev_num = 2
+
+          [spi_board1]
+          modalias = "spidev"
+          max_speed_hz = 33000000
+          bus_num = 1
+          chip_select = 0
+          mode = 0
+          full_duplex = 1
+          manual_cs = 0
+
+    	> fex2bin script.fex bin/orangepizero.bin
+	>fex2bin ~/script.fex ~/script.bin
+	>sudo cp ~/script.bin /boot
+	>sudo cp ~/script.bin /boot/bin/orangepizero.bin
+    	> reboot -i
+
+	git clone https://github.com/xpertsavenue/WiringOP-Zero.git
+	cd WiringOP-Zero
+	chmod +x ./build
+	./build
+	gpio readall
+	gpio -v
+	gpio write 30 1
+	gpio write 30 0
+
+#16. apt-get install tmux
+	tmux new -s coding  /create new session
+	Ctl+b & "  /split terminal in rows
+	Ctl+b & %  /split terminal in columns
+
+#17. fix server permissions
+	chown www-data:www-data /var/www
+	chmod 775 /var/www
+	usermod -a -G www-data pi #add the “Pi” user to the “www-data” group
+
+	usermod -a -G www-data root
+	usermod -a -G dialout root
+	usermod -a -G tty root
+	usermod -a -G uucp root
+	usermod -a -G plugdev root
+	usermod -a -G gpio www-data
+	usermod -a -G gpio pi
+	usermod -a -G audio root
+	groups root
+
+#18. modprobe sunxi_cir
+	reboot
+	lsmod
+	ls /dev/lirc*
+	apt-get -y install lirc
+	http://codelectron.com/how-to-setup-infrared-remote-control-in-orange-pi-zero-using-lircd-and-python/
+	/etc/init.d/lirc stop
+	/etc/init.d/lirc start
+	#restart lirc Services 
+	systemctl restart licrd.service
+	#Check the status
+	systemctl status  licrd.service
+
+#19. mount/unmount usb
+	dpkg -l | grep dosfstools
+	dpkg -l | grep ntfs-3g
+	apt-get install exfat-fuse exfat-utils
+	fdisk -l
+	mkdir /mnt/usb
+	mount /dev/sda1 /mnt/usb
+	mkdir /mnt/usb1
+ 	mount /dev/sda2 /mnt/usb1
+
+#20. apt-get install tightvncserver xfonts-base
+	/usr/bin/tightvncserver
+	OR	
+	apt-get install x11vnc
+	x11vnc -storepasswd
+	
+	add below line to nano /etc/rc.local
+	x11vnc -auth guess -bg -forever -tightfilexfer -loop -noxdamage -repeat -rfbauth /root/.vnc/passwd -rfbport 5901 -shared
+
+apt-get autoremove
+
+uname -a
+cat /proc/cpuinfo
+
+Installing Arduino-Cli
+curl -fsSL https://raw.githubusercontent.com/arduino/arduino-cli/master/install.sh | sh
+cd ~/bin
+./arduino-cli config init
+./arduino-cli core update
+./arduino-cli core update-index
+./arduino-cli core list
+./arduino-cli board
+./arduino-cli board listall
+./arduino-cli board listall avr
+./arduino-cli lib search rc-switch
+./arduino-cli lib install rc-switch
+
+For Arduino Uno
+****************
+./arduino-cli sketch new MyFirstSketch
+./arduino-cli compile --fqbn arduino:avr:uno MyFirstSketch
+./arduino-cli board list
+./arduino-cli upload -p /dev/ttyUSB0 --fqbn arduino:avr:uno MyFirstSketch
+
+add-esp-arduino.txt
+https://dl.espressif.com/dl/package_esp32_index.json, http://arduino.esp8266.com/stable/package_esp8266com_index.json
+
+For Esp8266 NodeMCU 1.0 (ESP-12E Module)
+****************************************
+./arduino-cli core search --additional-urls https://arduino.esp8266.com/stable/package_esp8266com_index.json
+./arduino-cli core update-index --additional-urls https://arduino.esp8266.com/stable/package_esp8266com_index.json
+./arduino-cli core install --additional-urls https://arduino.esp8266.com/stable/package_esp8266com_index.json
+./arduino-cli core list
+./arduino-cli board list
+./arduino-cli sketch new MyFirstSketch
+./arduino-cli compile --fqbn esp8266:esp8266:nodemcuv2 MyFirstSketch
+./arduino-cli board list
+./arduino-cli upload -p /dev/ttyUSB0 --fqbn esp8266:esp8266:nodemcuv2 MyFirstSketch
+
+For Esp32 DOIT ESP32 DEVKIT V1
+******************************
+./arduino-cli core search --additional-urls https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
+./arduino-cli core install esp32:esp32 --additional-urls https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
+./arduino-cli core update-index --additional-urls https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
+./arduino-cli core list
+./arduino-cli board list
+./arduino-cli sketch new MyFirstSketch
+./arduino-cli compile --fqbn esp32:esp32:esp32doit-devkit-v1 MyFirstSketch
+./arduino-cli board list
+./arduino-cli upload -p /dev/ttyUSB0 --fqbn esp32:esp32:esp32doit-devkit-v1 MyFirstSketch
+
+
+apt install python3
+wget https://bootstrap.pypa.io/get-pip.py
+python setup.py
+pip install --upgrade pip
+pip install pyserial
+
+pip install --upgrade OPi.GPIO
+
+# pwm-sunxi-opi0
+Loadable Kernel Module to support PWM on Allwinner H3 / H2+ SoC (sun8i / sun8iw$
+**Tested under Legacy Kernel only (3.4.X)**
+Provides access to PWM configuration parameters from userspace. Only exposes PW$
+<img src="https://github.com/iboguslavsky/pwm-sunxi-opi0/blob/master/images/000$
+Installation
+------
+Remap pins in FEX:
+<pre>
+; Disable debug UART0
+[uart_para]
+uart_debug_port = 0
+uart_debug_tx = port:PA04<2><1><default><default>
+uart_debug_rx = port:PA05<2><1><default><default>
+; Enable PWM0 on PA05
+[pwm0_para]
+pwm_used = 1
+pwm_positive = port:PA05<3><0><default><default>
+</pre>
+<pre>
+> fex2bin orangepizero.fex orangepizero.bin
+> shutdown -r now
+</pre>
+After the board comes back up:
+<pre>
+> git clone https://github.com/iboguslavsky/pwm-sunxi-opi0.git
+> cd pwm-sunxi-opi0
+> make
+> insmod ./pwm-sunxi-opi0.ko
+
+curl https://www.dataplicity.com/j0gi62xn.py | sudo python
+
+connectd-installer-version-2.3.17
+curl -LkO 54d/master/scripts/auto-install.sh
+chmod +x ./auto-install.sh
+./auto-install.sh
+connectd_installer
+
+git config --global user.email "ankurjoshi_807@yahoo.co.in"
+git config --global user.name "Ankur Joshi"
+
+apt-get install mtpaint
+
+usermod -a -G audio root
+speaker-test -twav -c2
+arecord -f cd - | aplay -
+arecord -D plughw:0,0 -f cd ./test2.wav
+arecord -M -f S16_LE -r 16000 -c 1 --buffer-size=204800 -v /tmp/sample.wav
+aplay -M /tmp/sample.wav --buffer-size=204800 -v
